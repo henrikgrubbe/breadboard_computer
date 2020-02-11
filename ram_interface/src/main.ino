@@ -25,15 +25,12 @@ void setup() {
 void loop() {
   while (Serial.available()) {
     String line = Serial.readStringUntil('\n');
-    String addrStr = line.substring(0, 4);
-    String dataStr = line.substring(5, 13);
-    uint8_t addr = parseBinary(addrStr);
-    uint8_t data = parseBinary(dataStr);
 
-    Serial.print("Addr: "); Serial.print(addrStr); Serial.print(" ("); Serial.print(addr); Serial.print(")");
-    Serial.print("\tData: "); Serial.print(dataStr); Serial.print(" ("); Serial.print(data); Serial.println(")");
-
-    writeRAM(addr, data);
+    if (line.length() >= 13) {
+      uint8_t addr = parseBinary(line.substring(0, 4));
+      uint8_t data = parseBinary(line.substring(5, 13));
+      writeRAM(addr, data);
+    }
   }
 }
 

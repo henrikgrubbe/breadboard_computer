@@ -1,7 +1,7 @@
 	 ldi 1
 	 sta a
-out: sta b
-	 out
+     sta b
+out: out
 	 add b
 	 sta tmp
 	 lda a

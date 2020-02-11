@@ -22,7 +22,6 @@ void setup() {
   data = new Data_MicroCode();
   // data = new Data_SevenSeg();
 
-
   Serial.println("Started writing to EEPROM...");
   for (int address = 0; address < 2048; address++) {
     programmer->writeEEPROM(address, data->getData(address));
