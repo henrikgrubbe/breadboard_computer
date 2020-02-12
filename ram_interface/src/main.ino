@@ -43,6 +43,8 @@ void loop() {
       uint8_t data = parseBinary(line.substring(5, 13));
       writeRAM(addr, data);
       EEPROM.write(addr, data);
+      delay(DELAY);
+      Serial.print(addr); Serial.print(':'); Serial.print(data); Serial.print('\n');
     }
   }
 
