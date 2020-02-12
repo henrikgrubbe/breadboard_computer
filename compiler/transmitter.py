@@ -16,7 +16,7 @@ ser = sl.Serial()
 ser.dtr = False
 ser.port = '/dev/ttyUSB0'
 ser.baudrate = 115200
-ser.timeout = 0.1
+ser.timeout = 0.2
 ser.open()
 
 program = []
@@ -39,7 +39,7 @@ for i, line, in enumerate(program):
         ser.write(l.encode('utf-8'))
         ser.flush()
         lineIn = ser.readline().decode('utf-8')
-        
+
         if len(lineIn) > 0:
             addrIn = int(lineIn.split(':')[0])
             dataIn = int(lineIn.split(':')[1])

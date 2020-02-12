@@ -1,16 +1,6 @@
-	lda a
-	sub c
-	jc lbl
-	lda d
+	ldi 4
+two:
+	add a
 	out
-	hlt
-lbl:
-	sta a
-	lda b
-	add d
-	sta d
-	jmp 0
-d: 	.byte 0
-a: 	.byte 12
-b: 	.byte 10
-c: 	.byte 1
+	jmp two
+a: 	.byte 10

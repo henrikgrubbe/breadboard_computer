@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include <EEPROM.h>
 
-#define DELAY 10
+#define DELAY 25
 
 #define BUS0_PIN 2
 #define BUS1_PIN 3

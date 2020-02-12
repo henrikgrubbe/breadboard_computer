@@ -20,7 +20,7 @@ void setup() {
 
   // select data
   data = new Data_MicroCode();
-  // data = new Data_SevenSeg();
+  //data = new Data_SevenSeg();
 
   Serial.println("Started writing to EEPROM...");
   for (int address = 0; address < 2048; address++) {

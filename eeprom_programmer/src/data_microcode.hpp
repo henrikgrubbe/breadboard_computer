@@ -20,7 +20,8 @@
 #define J   0b0000000000000010  // Jump (program counter in)
 #define FI  0b0000000000000001  // Flags in
 
-#define RS  0b0000001100000000  // Reset
+//#define RS  0b0000001100000000  // Reset
+#define RS  0b0000000000000000  // Reset
 
 #define FLAGS_Z0C0 0
 #define FLAGS_Z0C1 1
@@ -29,6 +30,27 @@
 
 #define JC  0b0111
 #define JZ  0b1000
+
+uint16_t UCODE_TEMPLATE[16][8] = {
+  { MI|CO,  RO|II|CE,  RS,    0,      0,           0,  0, 0 },   // 0000 - NOP
+  { MI|CO,  RO|II|CE,  IO|MI, RO|AI,  RS,          0,  0, 0 },   // 0001 - LDA
+  { MI|CO,  RO|II|CE,  IO|MI, RO|BI,  EO|AI|FI,    RS, 0, 0 },   // 0010 - ADD
+  { MI|CO,  RO|II|CE,  IO|MI, RO|BI,  EO|AI|SU|FI, RS, 0, 0 },   // 0011 - SUB
+  { MI|CO,  RO|II|CE,  IO|MI, AO|RI,  RS,          0,  0, 0 },   // 0100 - STA
+  { MI|CO,  RO|II|CE,  IO|AI, RS,     0,           0,  0, 0 },   // 0101 - LDI
+  { MI|CO,  RO|II|CE,  IO|J,  RS,     0,           0,  0, 0 },   // 0110 - JMP
+  { MI|CO,  RO|II|CE,  RS,    0,      0,           0,  0, 0 },   // 0111 - JC
+  { MI|CO,  RO|II|CE,  RS,    0,      0,           0,  0, 0 },   // 1000 - JZ
+  { MI|CO,  RO|II|CE,  RS,    0,      0,           0,  0, 0 },   // 1001
+  { MI|CO,  RO|II|CE,  RS,    0,      0,           0,  0, 0 },   // 1010
+  { MI|CO,  RO|II|CE,  RS,    0,      0,           0,  0, 0 },   // 1011
+  { MI|CO,  RO|II|CE,  RS,    0,      0,           0,  0, 0 },   // 1100
+  { MI|CO,  RO|II|CE,  RS,    0,      0,           0,  0, 0 },   // 1101
+  { MI|CO,  RO|II|CE,  AO|OI, RS,     0,           0,  0, 0 },   // 1110 - OUT
+  { MI|CO,  RO|II|CE,  HLT,   0,      0,           0,  0, 0 },   // 1111 - HLT
+};
+
+uint16_t ucode[4][16][8];
 
 class Data_MicroCode: public IData {
   public:
@@ -68,26 +90,7 @@ class Data_MicroCode: public IData {
     }
   
   private:
-    uint16_t UCODE_TEMPLATE[16][8] = {
-      { MI|CO,  RO|II|CE,  RS,    0,      0,           0,  0, 0 },   // 0000 - NOP
-      { MI|CO,  RO|II|CE,  IO|MI, RO|AI,  RS,          0,  0, 0 },   // 0001 - LDA
-      { MI|CO,  RO|II|CE,  IO|MI, RO|BI,  EO|AI|FI,    RS, 0, 0 },   // 0010 - ADD
-      { MI|CO,  RO|II|CE,  IO|MI, RO|BI,  EO|AI|SU|FI, RS, 0, 0 },   // 0011 - SUB
-      { MI|CO,  RO|II|CE,  IO|MI, AO|RI,  RS,          0,  0, 0 },   // 0100 - STA
-      { MI|CO,  RO|II|CE,  IO|AI, RS,     0,           0,  0, 0 },   // 0101 - LDI
-      { MI|CO,  RO|II|CE,  IO|J,  RS,     0,           0,  0, 0 },   // 0110 - JMP
-      { MI|CO,  RO|II|CE,  RS,    0,      0,           0,  0, 0 },   // 0111 - JC
-      { MI|CO,  RO|II|CE,  RS,    0,      0,           0,  0, 0 },   // 1000 - JZ
-      { MI|CO,  RO|II|CE,  RS,    0,      0,           0,  0, 0 },   // 1001
-      { MI|CO,  RO|II|CE,  RS,    0,      0,           0,  0, 0 },   // 1010
-      { MI|CO,  RO|II|CE,  RS,    0,      0,           0,  0, 0 },   // 1011
-      { MI|CO,  RO|II|CE,  RS,    0,      0,           0,  0, 0 },   // 1100
-      { MI|CO,  RO|II|CE,  RS,    0,      0,           0,  0, 0 },   // 1101
-      { MI|CO,  RO|II|CE,  AO|OI, RS,     0,           0,  0, 0 },   // 1110 - OUT
-      { MI|CO,  RO|II|CE,  HLT,   0,      0,           0,  0, 0 },   // 1111 - HLT
-    };
 
-    uint16_t ucode[4][16][8];
 };
 
 
