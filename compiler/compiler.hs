@@ -21,6 +21,8 @@ data Instruction
     | Sta Address
     | Ldi Immidiate
     | Jmp Address
+    | JC Address
+    | JZ Address
     | Out 
     | Hlt 
     | PseudoByte Immidiate
@@ -85,6 +87,8 @@ p_instruction = do
            try (p_string "sta"  >> p_addr >>= \a -> return (Inst $ Sta a ) ) <|> 
            try (p_string "ldi"  >> p_imm  >>= \i -> return (Inst $ Ldi i ) ) <|> 
            try (p_string "jmp"  >> p_addr >>= \a -> return (Inst $ Jmp a ) ) <|> 
+           try (p_string "jc"  >> p_addr >>= \a -> return (Inst $ JC a ) ) <|> 
+           try (p_string "jz"  >> p_addr >>= \a -> return (Inst $ JZ a ) ) <|> 
            try (p_string "out"  >> return (Inst $ Out ) ) <|> 
            try (p_string "hlt"  >> return (Inst $ Hlt ) ) <|>
            try (p_string ".byte" >> p_imm  >>= \i -> return (Inst $ PseudoByte i ) )
@@ -163,15 +167,17 @@ leftPad :: a -> Int -> [a] -> [a]
 leftPad padding len list = (replicate (len - length list) padding) ++ list
 
 codeInstruction :: Instruction -> [(String, Int)] -> String
-codeInstruction (Nop ) labelmap  = "00000000  NOP"
+codeInstruction (Nop )  labelmap = "00000000  NOP"
 codeInstruction (Lda a) labelmap = "0001" ++ (codeAddress a labelmap) ++ "  LDA " ++ (show a)
 codeInstruction (Add a) labelmap = "0010" ++ (codeAddress a labelmap) ++ "  ADD " ++ (show a)
 codeInstruction (Sub a) labelmap = "0011" ++ (codeAddress a labelmap) ++ "  SUB " ++ (show a)
 codeInstruction (Sta a) labelmap = "0100" ++ (codeAddress a labelmap) ++ "  STA " ++ (show a)
 codeInstruction (Ldi i) labelmap = "0101" ++ (codeImmidiate i 4)      ++ "  LDI " ++ (show i)
 codeInstruction (Jmp a) labelmap = "0110" ++ (codeAddress a labelmap) ++ "  JMP " ++ (show a)
-codeInstruction (Out ) labelmap  = "11100000  OUT"
-codeInstruction (Hlt ) labelmap  = "11110000  HLT"
+codeInstruction (JC a)  labelmap = "0111" ++ (codeAddress a labelmap) ++ "  JC " ++ (show a)
+codeInstruction (JZ a)  labelmap = "1000" ++ (codeAddress a labelmap) ++ "  JZ " ++ (show a)
+codeInstruction (Out )  labelmap = "11100000  OUT"
+codeInstruction (Hlt )  labelmap = "11110000  HLT"
 codeInstruction (PseudoByte i) labelmap = codeImmidiate i 8 ++ "  " ++ (show i)
 
 codeAddress :: Address -> [(String, Int)] -> String
