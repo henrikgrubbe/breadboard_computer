@@ -16,7 +16,7 @@ ser = sl.Serial()
 ser.dtr = False
 ser.port = '/dev/ttyUSB0'
 ser.baudrate = 115200
-ser.timeout = 0.2
+ser.timeout = 0.5
 ser.open()
 
 program = []
@@ -27,8 +27,8 @@ numLines = len(program)
 
 showProgress(numLines, 0, 0)
 for i, line, in enumerate(program):   
-    addrOut = int(l.split(':')[0], 2)
-    dataOut = int(l.split(':')[1][0:8], 2)
+    addrOut = int(line.split(':')[0], 2)
+    dataOut = int(line.split(':')[1][0:8], 2)
 
     success = False
     attempts = 0
@@ -36,9 +36,10 @@ for i, line, in enumerate(program):
         attempts += 1
         showProgress(numLines, i + 1, attempts)
 
-        ser.write(l.encode('utf-8'))
+        ser.write(line.encode('utf-8'))
         ser.flush()
-        lineIn = ser.readline().decode('utf-8')
+        byteIn = ser.readline()
+        lineIn = byteIn.decode('utf-8')
 
         if len(lineIn) > 0:
             addrIn = int(lineIn.split(':')[0])
