@@ -3,24 +3,30 @@
 
 #define DELAY 25
 
-#define BUS0_PIN 2
-#define BUS1_PIN 3
-#define BUS2_PIN 4
-#define BUS3_PIN 5
-#define BUS4_PIN 6
-#define BUS5_PIN 7
-#define BUS6_PIN 8
-#define BUS7_PIN 9
+#define BUS0_PIN 2  // D2
+#define BUS1_PIN 3  // D3
+#define BUS2_PIN 4  // D4
+#define BUS3_PIN 5  // D5
+#define BUS4_PIN 6  // D6
+#define BUS5_PIN 7  // D7
+#define BUS6_PIN 8  // D8
+#define BUS7_PIN 9  // D9
 
-#define MI_PIN 10
-#define RI_PIN 11
-#define CLK_PIN 12
-#define OE_PIN 13
-#define HLT_PIN 15
+#define MI_PIN 10   // D10 - Memory in
+#define RI_PIN 11   // D11 - RAM in
+#define CLK_PIN 12  // D12 - Processor clock
+#define OE_PIN 13   // D13 - Active low -output enable- of control logic
+#define HLT_PIN 15  // A1  - Halt signal
 
-#define BTN_PIN 14
+#define BTN_PIN 14  // A0  - Button input
+
+// SDA = A4/18
+// SCL = A5/19
+
+#define SLAVE_ADDR 9
 
 long lastButtonPress = 0;
+uint8_t shouldProgram = 0;
 
 void setup() {
   disablePins();
@@ -30,33 +36,88 @@ void setup() {
   pinMode(CLK_PIN, OUTPUT);
   digitalWrite(OE_PIN, LOW);
 
+
+  Wire.begin(SLAVE_ADDR);
+  Wire.onRequest(requestEvent); 
+  Wire.onReceive(receiveEvent);
+
   Serial.begin(115200);
   Serial.setTimeout(30000);
 }
 
 void loop() {
-  while (Serial.available()) {
-    String line = Serial.readStringUntil('\n');
-
-    if (line.length() >= 13) {
-      uint8_t addr = parseBinary(line.substring(0, 4));
-      uint8_t data = parseBinary(line.substring(5, 13));
-      writeRAM(addr, data);
-      EEPROM.write(addr, data);
-      delay(DELAY);
-      Serial.print(addr); Serial.print(':'); Serial.print(data); Serial.print('\n');
+  if(Serial.available()) {
+    while (Serial.available()) {
+      String line = Serial.readStringUntil('\n');
+      if (line.length() >= 13) {
+        uint8_t addr = parseBinary(line.substring(0, 4));
+        uint8_t data = parseBinary(line.substring(5, 13));
+        EEPROM.write(addr, data);
+        delay(DELAY);
+        Serial.print(addr); Serial.print(':'); Serial.print(data); Serial.print('\n');
+      }
     }
+    programFromEEPROM();
   }
 
   if (!digitalRead(BTN_PIN)) {
     long now = millis();
     if (now - lastButtonPress > 1000) {
       lastButtonPress = now;
-      for (int i = 0; i < 16; ++i) {
-        writeRAM(i, EEPROM.read(i));
-      }
+      programFromEEPROM();
     }
   }
+
+  if(shouldProgram) {
+    shouldProgram = 0;
+    programFromEEPROM();
+  }
+}
+
+void programFromEEPROM() {
+  Serial.println("Programming Breadboard from EEPROM");
+  for (int i = 0; i < 16; ++i) {
+    writeRAM(i, EEPROM.read(i));
+    delay(DELAY);
+  }
+}
+
+uint8_t lastAddr = 0xFF;
+uint8_t lastData = 0xFF;
+void receiveEvent() {
+  uint8_t addr  = Wire.available() ? Wire.read() : 0xFF;
+  uint8_t data  = Wire.available() ? Wire.read() : 0xFF;
+  while(Wire.available()) Wire.read();
+  lastAddr = addr;
+  lastData = data;
+
+
+  switch ((addr & 0xF0) >> 4) {
+    case 0x0: // normal instruction
+      EEPROM.write(addr, data);
+      Serial.print("Receive event: WRITE TO ADDRESS - "); Serial.print(addr); Serial.print(" : "); Serial.println(data, HEX);
+
+      break;
+    case 0x1:
+      shouldProgram = 1;
+      Serial.println("Receive event: PROGRAM FROM EEPROM - ");
+
+      break;
+    default:
+      Serial.print("Receive event "); Serial.print(addr); Serial.print(" : "); Serial.println(data, HEX);
+      break;
+  }
+
+}
+ 
+void requestEvent() {
+  uint8_t response[2];
+  response[0] = lastAddr;
+  response[1] = lastData;
+  
+  Wire.write(response,sizeof(response));
+  
+  Serial.println("Request event");
 }
 
 uint8_t parseBinary(String str) {
