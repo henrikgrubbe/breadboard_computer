@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include <EEPROM.h>
 
-#define DELAY 25
+#define DELAY 5
 
 #define BUS0_PIN 2  // D2
 #define BUS1_PIN 3  // D3
@@ -12,7 +12,7 @@
 #define BUS6_PIN 8  // D8
 #define BUS7_PIN 9  // D9
 
-#define MI_PIN 10   // D10 - Memory in
+#define MI_PIN 10   // D10 - Memory address in
 #define RI_PIN 11   // D11 - RAM in
 #define CLK_PIN 12  // D12 - Processor clock
 #define OE_PIN 13   // D13 - Active low -output enable- of control logic
@@ -24,6 +24,20 @@
 // SCL = A5/19
 
 #define SLAVE_ADDR 9
+
+#define BUS_SIZE 8
+#define RAM_SIZE 16
+
+uint8_t BUS_ADDR[BUS_SIZE] = {
+  BUS0_PIN,
+  BUS1_PIN,
+  BUS2_PIN,
+  BUS3_PIN,
+  BUS4_PIN,
+  BUS5_PIN,
+  BUS6_PIN,
+  BUS7_PIN
+};
 
 long lastButtonPress = 0;
 uint8_t shouldProgram = 0;
@@ -38,7 +52,7 @@ void setup() {
 
 
   Wire.begin(SLAVE_ADDR);
-  Wire.onRequest(requestEvent); 
+  // Wire.onRequest(requestEvent); 
   Wire.onReceive(receiveEvent);
 
   Serial.begin(115200);
@@ -76,49 +90,48 @@ void loop() {
 
 void programFromEEPROM() {
   Serial.println("Programming Breadboard from EEPROM");
-  for (int i = 0; i < 16; ++i) {
+  for (int i = 0; i < RAM_SIZE; ++i) {
     writeRAM(i, EEPROM.read(i));
-    delay(DELAY);
   }
 }
 
-uint8_t lastAddr = 0xFF;
-uint8_t lastData = 0xFF;
+
 void receiveEvent() {
   uint8_t addr  = Wire.available() ? Wire.read() : 0xFF;
   uint8_t data  = Wire.available() ? Wire.read() : 0xFF;
   while(Wire.available()) Wire.read();
-  lastAddr = addr;
-  lastData = data;
-
 
   switch ((addr & 0xF0) >> 4) {
     case 0x0: // normal instruction
-      EEPROM.write(addr, data);
       Serial.print("Receive event: WRITE TO ADDRESS - "); Serial.print(addr); Serial.print(" : "); Serial.println(data, HEX);
+      EEPROM.write(addr, data);
 
       break;
     case 0x1:
-      shouldProgram = 1;
       Serial.println("Receive event: PROGRAM FROM EEPROM - ");
+      shouldProgram = 1;
 
       break;
+    case 0x2: // immediate write
+      Serial.print("Receive event: IMMEDIATELY WRITE TO ADDRESS - "); Serial.print(addr & 0x0F); Serial.print(" : "); Serial.println(data, HEX);
+      EEPROM.write(addr & 0x0F, data);
+      writeRAM(addr & 0x0F, data);
+
     default:
       Serial.print("Receive event "); Serial.print(addr); Serial.print(" : "); Serial.println(data, HEX);
       break;
   }
-
 }
  
-void requestEvent() {
-  uint8_t response[2];
-  response[0] = lastAddr;
-  response[1] = lastData;
-  
-  Wire.write(response,sizeof(response));
-  
-  Serial.println("Request event");
-}
+// void requestEvent() {
+//   uint8_t response[2];
+//   response[0] = lastAddr;
+//   response[1] = lastData;
+//  
+//   Wire.write(response,sizeof(response));
+//  
+//   Serial.println("Request event");
+// }
 
 uint8_t parseBinary(String str) {
   uint8_t result = 0;
@@ -137,58 +150,76 @@ void enablePins() {
   pinMode(HLT_PIN, OUTPUT);
   digitalWrite(OE_PIN, HIGH);
   digitalWrite(HLT_PIN, HIGH);
-  delay(DELAY);
 
-  for (uint8_t pin = BUS0_PIN; pin <= RI_PIN; pin++) {
-    pinMode(pin, OUTPUT);
-    digitalWrite(pin, LOW);
-  } 
+  pinMode(MI_PIN, OUTPUT);
+  digitalWrite(MI_PIN, LOW);
+  pinMode(RI_PIN, OUTPUT);
+  digitalWrite(RI_PIN, LOW);
+
+  for (uint8_t i = 0; i < BUS_SIZE; i++) {
+    pinMode(BUS_ADDR[i], OUTPUT);
+    digitalWrite(BUS_ADDR[i], LOW);
+  }
+
+  delay(DELAY);
 }
 
 void disablePins() {
-  for (uint8_t pin = BUS0_PIN; pin <= RI_PIN; pin++) {
-    pinMode(pin, INPUT);
-    digitalWrite(pin, LOW);
+  pinMode(MI_PIN, INPUT);
+  digitalWrite(MI_PIN, LOW);
+  pinMode(RI_PIN, INPUT);
+  digitalWrite(RI_PIN, LOW);
+
+  for (uint8_t i = 0; i < BUS_SIZE; i++) {
+    pinMode(BUS_ADDR[i], INPUT);
+    digitalWrite(BUS_ADDR[i], LOW);
   }
 
   pinMode(HLT_PIN, INPUT);
   pinMode(OE_PIN, OUTPUT);
   digitalWrite(HLT_PIN, LOW);
   digitalWrite(OE_PIN, LOW);
+
   delay(DELAY);
 }
 
 void pulse(uint8_t pin) {
   digitalWrite(pin, HIGH);
   delay(DELAY);
-  if (pin != CLK_PIN) {
-    pulse(CLK_PIN);
-  }
+  pulseClk();
   digitalWrite(pin, LOW);
+}
+
+void pulseClk() {
+  digitalWrite(CLK_PIN, HIGH);
+  delay(DELAY);
+  digitalWrite(CLK_PIN, LOW);
 }
 
 void writeRAM(uint8_t addr, uint8_t data) {
   enablePins();
-  delay(DELAY);
 
   // Write address to bus
-  for (uint8_t busPin = BUS0_PIN; busPin <= BUS3_PIN; busPin++) {
-    uint8_t mask = 0b00000001 << (busPin - BUS0_PIN);
-    digitalWrite(busPin, addr & mask ? HIGH : LOW);
+  for (uint8_t i = 0; i < 4; i++) {
+    digitalWrite(BUS_ADDR[i], getNthBit(addr, i) ? HIGH : LOW);
   }
 
   // Write bus to address register
   pulse(MI_PIN);
 
   // Write data to bus
-  for (uint8_t busPin = BUS0_PIN; busPin <= BUS7_PIN; busPin++) {
-    uint8_t mask = 0b00000001 << (busPin - BUS0_PIN);
-    digitalWrite(busPin, data & mask ? HIGH : LOW);
+  for (uint8_t i = 0; i < 8; i++) {
+    digitalWrite(BUS_ADDR[i], getNthBit(data, i) ? HIGH : LOW);
   }
 
   // Write bus to RAM
   pulse(RI_PIN);
 
   disablePins();
-  delay(DELAY);
+}
+
+uint8_t getNthBit(uint8_t data, uint8_t index) {
+  uint8_t mask = 0b00000001 << index;
+  
+  return data & mask;
 }
