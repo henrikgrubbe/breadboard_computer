@@ -111,7 +111,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
       } else if (strcmp(doc[command_key], command_immediateWrite) == 0) {
         immidiateWrite(doc["address"].as<unsigned int>(), doc["data"].as<unsigned int>());
       } else {
-        Serial.print("Unknown command: "); Serial.println(doc[command_key].as<char*>());
+        Serial.print("Unknown command: "); Serial.println(doc[command_key].as<const char*>());
       }
     }
 
