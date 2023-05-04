@@ -8,8 +8,8 @@
 #define SLAVE_ADDR 9
 
 
-const char *ssid = "HelgeNet";
-const char *password = "KatteNet";
+const char *ssid = "BreadBoardNet";
+const char *password = "beepboop";
 const char *mqtt_server = "it.fantastiskefroe.dk";
 const int mqtt_port = 1883;
 
