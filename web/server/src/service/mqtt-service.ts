@@ -1,6 +1,5 @@
 import { Service } from "../model/service";
 import mqtt from "mqtt";
-import { Packet } from "mqtt-packet";
 
 export class MqttService implements Service {
   public readonly name = "MQTT";
@@ -15,20 +14,19 @@ export class MqttService implements Service {
     return new Promise((resolve) => {
       this.client = mqtt.connect(`mqtt://${host}:${port}`);
       this.client.on("connect", (_packet) => {
-        console.log(`Connected to MQTT server at ${host}:${port}`, _packet);
+        console.log(`Connected to MQTT server at ${host}:${port}`);
         resolve();
       });
     });
   }
 
-  public publish(topic: string, data: string): Promise<Packet> {
+  public publish(topic: string, data: string): Promise<void> {
     return new Promise((resolve, reject) =>
-      this.client.publish(topic, data, {}, (error?: Error, packet?: Packet) => {
-        console.log(error, packet);
-        if (packet != null) {
-          resolve(packet);
+      this.client.publish(topic, data, {}, (error?: Error) => {
+        if (error != null) {
+          reject(error);
         } else {
-          reject(error ?? new Error("Unknown error"));
+          resolve();
         }
       }),
     );

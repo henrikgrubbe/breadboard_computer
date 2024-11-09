@@ -38,15 +38,16 @@ export class ExpressService implements Service {
 
     console.log("Received topic body", topic, bodyString);
 
-    this.mqttService.publish(topic, bodyString).then((err) => {
-      if (err) {
-        console.log("Error when publishing", err);
+    this.mqttService
+      .publish(topic, bodyString)
+      .catch((err) => {
+        console.log("Error publishing", err);
         res.json({ success: false, error: err });
-      } else {
-        console.log("Published", err);
+      })
+      .then(() => {
+        console.log("Successfully published");
         res.json({ success: true });
-      }
-    });
+      });
   }
 
   public destruct(): Promise<void> {
