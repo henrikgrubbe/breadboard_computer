@@ -22,7 +22,7 @@ jobs:
       - name: Package and push
         uses: docker/build-push-action@v6
         with:
-          context: ./web
+          context: "{{defaultContext}}:web"
           push: true
           provenance: false
           labels: |
