@@ -3,7 +3,7 @@ name: Build and push Docker image
 on:
   push:
     branches: ['master']
-    paths: [ 'web/**' ]
+    paths: [ '.github/workflows/build-and-publish.yml', 'web/**' ]
 
 jobs:
   build_and_push:
@@ -22,7 +22,7 @@ jobs:
       - name: Package and push
         uses: docker/build-push-action@v6
         with:
-          context: web
+          context: ./web
           push: true
           provenance: false
           labels: |
