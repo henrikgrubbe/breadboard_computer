@@ -39,9 +39,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Change directory
-        run: cd web/app
-
       - name: Node
         uses: actions/setup-node@v4
         with:
@@ -58,6 +55,9 @@ jobs:
   lint-server:
     name: Lint server
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web/server
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -67,6 +67,7 @@ jobs:
         with:
           node-version: lts/*
           cache: npm
+          cache-dependency-path: web/server/package-lock.json
 
       - name: Dependencies
         run: npm ci
@@ -77,6 +78,9 @@ jobs:
   build-server:
     name: Build server
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web/server
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -86,6 +90,7 @@ jobs:
         with:
           node-version: lts/*
           cache: npm
+          cache-dependency-path: web/server/package-lock.json
 
       - name: Dependencies
         run: npm ci
