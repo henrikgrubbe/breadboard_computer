@@ -1,16 +1,18 @@
-#include <Wire.h>
+#include <time.h>
 #include <WiFi.h>
-#include <PubSubClient.h>
+#include <Wire.h>
+#include <WebServer.h>
+#include <AutoConnectCore.h>
 #include <ArduinoJson.h>
+#include <PubSubClient.h>
+
 
 #define DELAY 100
 #define NUM_ADDR 16
 #define SLAVE_ADDR 9
 
 
-const char *ssid = "BreadBoardNet";
-const char *password = "beepboop";
-const char *mqtt_server = "it.fantastiskefroe.dk";
+const char *mqtt_server = "breadboard.achri.dk";
 const int mqtt_port = 1883;
 
 const char *topic_program = "program";
@@ -22,8 +24,14 @@ const char *command_immediateWrite = "WRITE";
 
 
 WiFiClient wifiClient;
-PubSubClient client(wifiClient);
+PubSubClient MQTTClient(wifiClient);
 StaticJsonDocument<512> jsonFilter;
+
+
+WebServer Server;
+AutoConnect WiFiSetupPortal(Server);
+AutoConnectConfig config;
+
 
 void setup() {
   Wire.begin();
@@ -38,34 +46,46 @@ void setup() {
   setupMqtt();
 }
 
+void onWIFIConnected(IPAddress& ipaddr) {
+  Serial.printf("WiiFi connected with %s, IP:%s\n", WiFi.SSID().c_str(), ipaddr.toString().c_str());
+  // if (WiFi.getMode() & WIFI_AP) {
+  //   WiFi.softAPdisconnect(true);
+  //   WiFi.enableAP(false);
+  //   Serial.printf("SoftAP:%s shut down\n", WiFi.softAPSSID().c_str());
+  // }
+}
+
 void setupWifi() {
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  // WiFi.begin(ssid);
-  Serial.println("\nConnecting");
+  config.title = "Gluten PC";
+  config.apid = "Gluten-PC";
+  config.psk  = "";
+  // config.autoRise = false;
+  config.retainPortal = true;
+  WiFiSetupPortal.config(config);
+  WiFiSetupPortal.onConnect(onWIFIConnected);
+  WiFiSetupPortal.disableMenu(AC_MENUITEM_HOME);
+  WiFiSetupPortal.begin();
 
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(100);
-  }
+  // config.autoRise = true;   // Enable the launch of the captive portal.
+  // WiFiSetupPortal.config(config);    // Don't forget it.
 
-  Serial.println("\nConnected to the WiFi network");
-  Serial.print("Local ESP32 IP: "); Serial.println(WiFi.localIP());
+  Serial.println("Web Server started:" + WiFi.localIP().toString());
 }
 
 void setupMqtt() {  
   deserializeJson(jsonFilter, filter_string);
 
-  client.setServer(mqtt_server, mqtt_port);
-  client.setBufferSize(2048);
-  client.setCallback(mqttCallback);
+  MQTTClient.setServer(mqtt_server, mqtt_port);
+  MQTTClient.setBufferSize(2048);
+  MQTTClient.setCallback(mqttCallback);
 }
 
 void loop() {
-  if (!client.connected()) {
+  WiFiSetupPortal.handleClient();
+  if (!MQTTClient.connected()) {
     mqttReconnect();
   }
-  client.loop();
+  MQTTClient.loop();
 }
 
 void sendLine(uint8_t addr, uint8_t data) {
@@ -133,19 +153,19 @@ void mqttCallback(char *topic, byte *payload, unsigned int length) {
 
 void mqttReconnect() {
   // Loop until we're reconnected
-  while (!client.connected()) {
+  while (!MQTTClient.connected()) {
     Serial.print("Attempting MQTT connection...");
     // Attempt to connect
-    if (client.connect("breadboard_wemos")) {
+    if (MQTTClient.connect("breadboard_wemos")) {
       Serial.println("connected");
       // Once connected, publish an announcement...
-      client.publish("outTopic", "hello world");
+      MQTTClient.publish("outTopic", "hello world");
       // ... and resubscribe
-      client.subscribe(topic_program);
-      client.subscribe(topic_command);
+      MQTTClient.subscribe(topic_program);
+      MQTTClient.subscribe(topic_command);
     } else {
       Serial.print("failed, rc=");
-      Serial.print(client.state());
+      Serial.print(MQTTClient.state());
       Serial.println(" try again in 5 seconds");
       // Wait 5 seconds before retrying
       delay(5000);
