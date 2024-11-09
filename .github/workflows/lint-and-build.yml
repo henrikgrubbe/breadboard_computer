@@ -13,14 +13,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Change directory
+        run: cd web/app
+
       - name: Node
         uses: actions/setup-node@v4
         with:
           node-version: current
           cache: npm
-
-      - name: Change directory
-        run: cd web/app
 
       - name: Dependencies
         run: npm ci
@@ -35,14 +35,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Change directory
+        run: cd web/app
+
       - name: Node
         uses: actions/setup-node@v4
         with:
           node-version: current
           cache: npm
-
-      - name: Change directory
-        run: cd web/app
 
       - name: Dependencies
         run: npm ci
@@ -57,14 +57,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Change directory
+        run: cd web/server
+
       - name: Node
         uses: actions/setup-node@v4
         with:
           node-version: current
           cache: npm
-
-      - name: Change directory
-        run: cd web/server
 
       - name: Dependencies
         run: npm ci
@@ -79,14 +79,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Change directory
+        run: cd web/server
+
       - name: Node
         uses: actions/setup-node@v4
         with:
           node-version: current
           cache: npm
-
-      - name: Change directory
-        run: cd web/server
 
       - name: Dependencies
         run: npm ci
