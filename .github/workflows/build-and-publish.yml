@@ -1,0 +1,34 @@
+name: Build and push Docker image
+
+on:
+  push:
+    branches: ['master']
+    paths: [ 'web/**' ]
+
+jobs:
+  build_and_push:
+    name: Build and push image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: hense1994
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Package and push
+        uses: docker/build-push-action@v6
+        with:
+          context: web
+          push: true
+          provenance: false
+          labels: |
+            maintainer=${{ github.repository_owner }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.description=Commit message: ${{ github.event.head_commit.message }}
+          tags: |
+            hense1994/${{ github.event.repository.name }}:latest
+            hense1994/${{ github.event.repository.name }}:${{ github.sha }}

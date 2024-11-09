@@ -1,0 +1,99 @@
+name: Lint and build
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  lint-app:
+    name: Lint app
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web/app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: web/app/package-lock.json
+
+      - name: Dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+  build-app:
+    name: Build app
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web/app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: web/app/package-lock.json
+
+      - name: Dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+  lint-server:
+    name: Lint server
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web/server
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: web/server/package-lock.json
+
+      - name: Dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+  build-server:
+    name: Build server
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web/server
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: web/server/package-lock.json
+
+      - name: Dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
