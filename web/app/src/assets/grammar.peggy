@@ -75,9 +75,6 @@
 
   function compile(lines) {
     if (options.compile) {
-      console.info("labels", labelMap);
-      console.info("lines", lines);
-
       return lines
         .map((line, index) => `${toBinary(index, 4)}:${line.f()}`)
         .join("\n");

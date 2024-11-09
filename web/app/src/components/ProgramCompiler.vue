@@ -44,7 +44,7 @@
 import {defineComponent} from 'vue';
 import {PrismEditor} from 'vue-prism-editor';
 import * as peggy from 'peggy';
-import {debounce} from '@/utils/debounce';
+import {debounceFunction} from '@/utils/debounceFunction';
 import {publishToTopic} from '@/utils/mqtt-upload';
 import 'vue-prism-editor/dist/prismeditor.min.css';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -61,7 +61,7 @@ export default defineComponent({
       source: '' as string,
       compiled: '' as string,
       error: ' ' as string,
-      debouncedCompiler: (code: string) => debounce(() => this.compile(code), 500),
+      debouncedCompiler: debounceFunction((code: string) => this.compile(code), 250),
     };
   },
   mounted() {
@@ -69,7 +69,7 @@ export default defineComponent({
   },
   watch: {
     source: function (code: string) {
-      this.debouncedCompiler(code);
+      this.debouncedCompiler.call(null, code);
     },
   },
   methods: {
