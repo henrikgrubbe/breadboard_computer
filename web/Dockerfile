@@ -1,52 +1,33 @@
-# Stage 1: Compile and build app
+# Stage 1: Compile and build server
+FROM node:22-alpine AS server-build
 
-# Use official node image as the base image
-FROM node:22-alpine AS app-build
+WORKDIR /usr/local/server
+COPY ./server /usr/local/server
 
-# Set the working directory
-WORKDIR /usr/local/app
-
-# Add the source code to app
-COPY ./app /usr/local/app
-
-# Install all dependencies
 RUN npm ci --quiet
-
-# Generate the build of the application
 RUN npm run build
 
 
-# Stage 2: Compile and build server
+# Stage 2: Compile and build app
+FROM node:22-alpine AS app-build
 
-# Use official node image as the base image
-FROM node:22-alpine AS server-build
+WORKDIR /usr/local/app
+COPY ./app /usr/local/app
 
-# Set the working directory
-WORKDIR /usr/local/server
-
-# Add the source code to app
-COPY ./server /usr/local/server
-
-# Install all dependencies
 RUN npm ci --quiet
-
-# Generate the build of the application
 RUN npm run build
 
 
 # Stage 3: Run server
-# Use official node image as the base image
 FROM node:22-alpine
 
 WORKDIR /server
+COPY --from=server-build /usr/local/server/dist .
+COPY --from=app-build /usr/local/app/dist ./app
+COPY .server/package*.json ./
 
 ENV NODE_ENV=production
 ENV DEBUG=false
-
-COPY --from=server-build /usr/local/server/dist .
-COPY --from=app-build /usr/local/app/dist ./app
-
-COPY .server/package*.json ./
 
 RUN npm ci --quiet --only=production
 
