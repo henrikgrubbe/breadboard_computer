@@ -1,0 +1,95 @@
+name: Lint and build
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  lint-app:
+    name: Lint app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: current
+          cache: npm
+
+      - name: Change directory
+        run: cd web/app
+
+      - name: Dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+  build-app:
+    name: Build app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: current
+          cache: npm
+
+      - name: Change directory
+        run: cd web/app
+
+      - name: Dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+  lint-server:
+    name: Lint server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: current
+          cache: npm
+
+      - name: Change directory
+        run: cd web/server
+
+      - name: Dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+  build-server:
+    name: Build server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: current
+          cache: npm
+
+      - name: Change directory
+        run: cd web/server
+
+      - name: Dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
