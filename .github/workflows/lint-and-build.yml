@@ -9,17 +9,17 @@ jobs:
   lint-app:
     name: Lint app
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web/app
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Change directory
-        run: cd web/app
-
       - name: Node
         uses: actions/setup-node@v4
         with:
-          node-version: current
+          node-version: lts
           cache: npm
 
       - name: Dependencies
@@ -31,6 +31,9 @@ jobs:
   build-app:
     name: Build app
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web/app
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,7 +44,7 @@ jobs:
       - name: Node
         uses: actions/setup-node@v4
         with:
-          node-version: current
+          node-version: lts
           cache: npm
 
       - name: Dependencies
@@ -57,13 +60,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Change directory
-        run: cd web/server
-
       - name: Node
         uses: actions/setup-node@v4
         with:
-          node-version: current
+          node-version: lts
           cache: npm
 
       - name: Dependencies
@@ -79,13 +79,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Change directory
-        run: cd web/server
-
       - name: Node
         uses: actions/setup-node@v4
         with:
-          node-version: current
+          node-version: lts
           cache: npm
 
       - name: Dependencies
