@@ -24,7 +24,7 @@ FROM node:22-alpine
 WORKDIR /server
 COPY --from=server-build /usr/local/server/dist .
 COPY --from=app-build /usr/local/app/dist ./app
-COPY .server/package*.json ./
+COPY ./server/package*.json ./
 
 ENV NODE_ENV=production
 ENV DEBUG=false
