@@ -47,7 +47,7 @@ import * as peggy from 'peggy';
 import {debounceFunction} from '@/utils/debounceFunction';
 import {publishToTopic} from '@/utils/mqtt-upload';
 import 'vue-prism-editor/dist/prismeditor.min.css';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const grammar = require('@/assets/grammar.peggy?raw');
 
 export default defineComponent({
@@ -85,11 +85,7 @@ export default defineComponent({
       this.compiled = parsed;
     },
     sourceHighlighter(code: string) {
-      try {
-        return this.parser.parse(code, {highlight: true});
-      } catch (e: unknown) {
-        return code;
-      }
+      return this.parser.parse(code, {highlight: true});
     },
     compiledHighlighter(code: string) {
       return code
