@@ -1,4 +1,4 @@
-name: Lint and build app
+name: Lint and build server
 
 on:
   pull_request:
