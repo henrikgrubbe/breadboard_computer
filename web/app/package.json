@@ -22,7 +22,7 @@
     "@tsconfig/node22": "22.0.0",
     "@types/node": "22.13.1",
     "@vitejs/plugin-vue": "5.2.1",
-    "@vue/eslint-config-typescript": "14.3.0",
+    "@vue/eslint-config-typescript": "14.4.0",
     "@vue/tsconfig": "0.7.0",
     "eslint": "9.20.0",
     "eslint-config-prettier": "10.0.1",
