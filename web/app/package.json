@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@tsconfig/node22": "22.0.2",
-    "@types/node": "22.15.34",
+    "@types/node": "22.16.0",
     "@vitejs/plugin-vue": "6.0.0",
     "@vue/eslint-config-typescript": "14.5.1",
     "@vue/tsconfig": "0.7.0",
