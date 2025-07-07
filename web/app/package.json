@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "bootstrap": "5.3.7",
-    "core-js": "3.43.0",
+    "core-js": "3.44.0",
     "peggy": "5.0.4",
     "vue": "3.5.17",
     "vue-prism-editor": "2.0.0-alpha.2"
