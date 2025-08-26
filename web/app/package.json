@@ -12,7 +12,7 @@
     "lint:fix": "npm run lint -- --fix"
   },
   "dependencies": {
-    "bootstrap": "5.3.7",
+    "bootstrap": "5.3.8",
     "core-js": "3.45.1",
     "peggy": "5.0.6",
     "vue": "3.5.20",
