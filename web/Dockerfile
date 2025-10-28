@@ -1,5 +1,5 @@
 # Stage 1: Compile and build server
-FROM node:22-alpine AS server-build
+FROM node:24-alpine AS server-build
 
 WORKDIR /usr/local/server
 COPY ./server /usr/local/server
@@ -9,7 +9,7 @@ RUN npm run build
 
 
 # Stage 2: Compile and build app
-FROM node:22-alpine AS app-build
+FROM node:24-alpine AS app-build
 
 WORKDIR /usr/local/app
 COPY ./app /usr/local/app
@@ -19,7 +19,7 @@ RUN npm run build
 
 
 # Stage 3: Run server
-FROM node:22-alpine
+FROM node:24-alpine
 
 WORKDIR /server
 COPY --from=server-build /usr/local/server/dist .
