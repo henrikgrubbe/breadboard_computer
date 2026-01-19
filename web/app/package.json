@@ -15,7 +15,7 @@
     "bootstrap": "5.3.8",
     "core-js": "3.47.0",
     "peggy": "5.0.6",
-    "vue": "3.5.26",
+    "vue": "3.5.27",
     "vue-prism-editor": "2.0.0-alpha.2"
   },
   "devDependencies": {
