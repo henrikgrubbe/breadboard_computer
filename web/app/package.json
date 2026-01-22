@@ -19,18 +19,18 @@
     "vue-prism-editor": "2.0.0-alpha.2"
   },
   "devDependencies": {
-    "@tsconfig/node24": "24.0.3",
+    "@tsconfig/node24": "24.0.4",
     "@types/node": "24.10.9",
     "@vitejs/plugin-vue": "6.0.3",
     "@vue/eslint-config-typescript": "14.6.0",
-    "@vue/tsconfig": "0.7.0",
+    "@vue/tsconfig": "0.8.1",
     "eslint": "9.39.2",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.5",
     "eslint-plugin-vue": "10.7.0",
     "npm-run-all2": "8.0.4",
     "sass-embedded": "^1.80.6",
-    "typescript": "5.8.3",
+    "typescript": "5.9.3",
     "vite": "7.3.1",
     "vite-plugin-vue-devtools": "8.0.5",
     "vue-tsc": "3.2.2"

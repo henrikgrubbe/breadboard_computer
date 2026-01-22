@@ -2,7 +2,7 @@ export function debounceFunction<T>(
   fn: (args: T) => void,
   delay: number,
 ): (args: T) => void {
-  let timeout: number | undefined;
+  let timeout: number | NodeJS.Timeout | undefined;
 
   return (args: T) => {
     if (timeout) {

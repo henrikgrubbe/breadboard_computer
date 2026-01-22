@@ -82,6 +82,7 @@ export default defineComponent({
       compiled: "" as string,
       error: " " as string,
       debouncedCompiler: debounceFunction(
+        // @ts-expect-error TS2722
         (code: string) => this.compile(code),
         250,
       ),
@@ -93,7 +94,7 @@ export default defineComponent({
   },
   watch: {
     source: function (code: string) {
-      this.debouncedCompiler.call(null, code);
+      this.debouncedCompiler.call(this, code);
     },
   },
   methods: {
@@ -130,7 +131,9 @@ export default defineComponent({
       const body: Record<string, number> = {};
       this.compiled.split("\n").forEach((line: string) => {
         const [address, instruction] = line.split(":");
-        body[parseInt(address, 2).toString()] = parseInt(instruction, 2);
+        if (address != null && instruction != null) {
+          body[parseInt(address, 2).toString()] = parseInt(instruction, 2);
+        }
       });
 
       publishToTopic("program", body);
