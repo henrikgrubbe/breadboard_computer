@@ -82,7 +82,6 @@ export default defineComponent({
       compiled: "" as string,
       error: " " as string,
       debouncedCompiler: debounceFunction(
-        // @ts-expect-error TS2722
         (code: string) => this.compile(code),
         250,
       ),
